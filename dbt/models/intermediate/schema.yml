@@ -1,0 +1,34 @@
+models:
+  - name: int_tripproductstep
+    description: "Decoding of product selection step indices (firstUndecidedStepIndex) to type & phase ID"
+    columns:
+      - name: tripid
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                field: tripid
+                to: ref('stg_trip')
+      - name: productstepindex
+        data_tests:
+          - not_null
+      - name: productsteptype
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - departure
+                  - hotel
+                  - room
+                  - ship
+                  - cabin
+      - name: maxproductstepindex
+        data_tests:
+          - not_null
+      - name: tripphaseid
+        data_tests:
+          - relationships:
+              arguments:
+                field: tripphaseid
+                to: ref('stg_tripphase')

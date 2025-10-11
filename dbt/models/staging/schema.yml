@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: erp_raw
+    database: dev
+    schema: "erp_spectrum"
+    tables:
+      - name: ebdb_public_reservation
+      - name: ebdb_public_passenger
+      - name: ebdb_public_person
+      - name: ebdb_public_reservedproduct
+      - name: ebdb_public_product
+      - name: ebdb_public_resource
+      - name: ebdb_public_quota
+      - name: ebdb_public_travelstep
+      - name: ebdb_public_waypoint
+      - name: ebdb_public_location
+      - name: ebdb_public_trip
+      - name: ebdb_public_tripphase
+      - name: ebdb_public_tripdestination
