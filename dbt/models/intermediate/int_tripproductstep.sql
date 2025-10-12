@@ -78,6 +78,6 @@ rankedsteps as (
 )
 
 select *,
-max(productstepindex) over (partition by tripid) as maxproductstepindex
+(max(productstepindex) over (partition by tripid)) + 1 as numproductsteps
 
 from rankedsteps

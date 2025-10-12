@@ -23,7 +23,7 @@ models:
                   - room
                   - ship
                   - cabin
-      - name: maxproductstepindex
+      - name: numproductsteps
         data_tests:
           - not_null
       - name: tripphaseid
