@@ -1,6 +1,10 @@
-{{ config(materialized="table", diststyle="all", sortkey=["tripid"]) }}
+{{ config(
+    materialized='table',
+    dist='all',
+    sort=['tripid'],
+) }}
 
-with source as (select * from {{ source("erp_raw", "ebdb_public_trip") }})
+with source as (select * from {{ source('erp_raw', 'ebdb_public_trip') }})
 
 select
 

@@ -1,11 +1,9 @@
-{{
-    config(
-        materialized="table",
-        diststyle="all",
-        sortkey=["tripid", "productstepindex"],
-        sort_type="compound",
-    )
-}}
+{{ config(
+    materialized='table',
+    dist='all',
+    sort=['tripid', 'productstepindex'],
+    sort_type='compound',
+) }}
 
 with base as (
     select tripid,
@@ -13,7 +11,7 @@ with base as (
     tripphaseindex,
     tripphasetype
 
-    from {{ ref("stg_tripphase") }}
+    from {{ ref('stg_tripphase') }}
 ),
 
 departures as (

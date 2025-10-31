@@ -1,20 +1,17 @@
-{{
-    config(
-        materialized="incremental",
-        unique_key="reservationid",
-        incremental_strategy="merge",
-        on_schema_change="sync_all_columns",
-        dist="reservationid",
-        diststyle="key",
-        sortkey=["departuredate", "createtime"],
-        sort_type="compound",
-    )
-}}
+{{ config(
+    materialized='incremental',
+    unique_key='reservationid',
+    incremental_strategy='merge',
+    on_schema_change='sync_all_columns',
+    dist='reservationid',
+    sort=['departuredate', 'createtime'],
+    sort_type='compound',
+) }}
 
 with
     source as (
         select *
-        from {{ source("erp_raw", "ebdb_public_reservation") }}
+        from {{ source('erp_raw', 'ebdb_public_reservation') }}
         {% if is_incremental() %}
             where modifytime > coalesce((select max(modifytime) from {{ this }}), '1989-06-28'::timestamp)
         {% endif %}

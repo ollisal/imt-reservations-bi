@@ -1,8 +1,8 @@
 {{ config(
     materialized='table',
-    diststyle='key',
-    distkey='reservationid',
-    sort=['departuredate', 'tripid']
+    dist='reservationid',
+    sort=['departuredate', 'tripid'],
+    sort_type='compound',
 ) }}
 
 with base as (
