@@ -29,13 +29,10 @@ select
 
     departuredate,
 
-    createtime,
-    modifytime,
-    confirmationtime,
-
-    date_trunc('day', createtime) as createdate,
-    date_trunc('day', modifytime) as modifydate,
-    date_trunc('day', confirmationtime) as confirmationdate,
+    {% for event in ['create', 'confirmation', 'modify'] %}
+    {{ event }}time,
+    date_trunc('day', {{ event }}time) as {{ event }}date,
+    {% endfor %}
 
     firstundecidedreservationview,
     firstundecidedstepindex,

@@ -52,17 +52,13 @@ select
 
 reservationid,
 
-createdate,
-extract(year from createdate) createyear,
-extract(month from createdate) createmonth,
+{% for event in ['create', 'confirmation', 'departure'] %}
 
-confirmationdate,
-extract(year from confirmationdate) confirmationyear,
-extract(month from confirmationdate) confirmationmonth,
+{{ event }}date,
+extract(year from {{ event }}date) {{ event }}year,
+extract(month from {{ event }}date) {{ event }}month,
 
-departuredate,
-extract(year from departuredate) departureyear,
-extract(month from departuredate) departuremonth,
+{% endfor %}
 
 tripid,
 tripname,
