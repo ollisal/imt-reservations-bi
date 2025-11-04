@@ -17,7 +17,11 @@ def plot_product_step_comparison(df, title):
     """
     # Pivot data and calculate percentages
     pivot_df = df.pivot(index='abandonproductsteptype', columns='departureyear', values='count').fillna(0)
-    pivot_pct = pivot_df.div(pivot_df.sum(axis=0), axis=1) * 100
+
+    # Calculate totals for each year
+    totals = pivot_df.sum(axis=0)
+
+    pivot_pct = pivot_df.div(totals, axis=1) * 100
 
     # Define step order
     step_order = ['departure', 'hotel', 'room', 'flight', 'ship', 'cabin']
@@ -62,7 +66,7 @@ def plot_product_step_comparison(df, title):
 
     ax.invert_yaxis()
     ax.set_yticks(y_pos)
-    ax.set_yticklabels(['2019', '2024'])
+    ax.set_yticklabels([f'2019 (n={int(totals[2019]):,})', f'2024 (n={int(totals[2024]):,})'])
     ax.set_xlabel('Percentage of ProductSelection Abandonments')
     ax.set_title(title)
     ax.set_xlim(0, 100)
