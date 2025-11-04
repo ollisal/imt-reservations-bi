@@ -16,6 +16,7 @@ with base as (
 
     tripid,
     trip.name tripname,
+    -- TODO include choice of own car. It is specified in the first passenger
     -- Further trip attributes from a separately constructed dim_trip
 
     status,

@@ -84,6 +84,10 @@ rankedsteps as (
     from allsteps
 )
 
+-- TODO create separate set of rows for trip when own car is chosen
+-- (although these are usually the same as the default ones,
+-- it's typically just choiceless bus etc steps which are skipped)
+
 select *,
 (max(productstepindex) over (partition by tripid)) + 1 as numproductsteps
 

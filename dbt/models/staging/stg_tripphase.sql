@@ -16,4 +16,6 @@ select
     current_timestamp as dbt_loadtime,
     '{{ invocation_id }}' as dbt_runid
 
+    -- TODO might want to extract the variable trip duration parameters (hotel stay length options)
+
 from {{ source('erp_raw', 'ebdb_public_tripphase') }}
