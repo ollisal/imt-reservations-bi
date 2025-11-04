@@ -1,0 +1,63 @@
+models:
+  - name: dim_trip
+    description: Dimension table for trips booked in reservations
+    columns:
+      - name: tripid
+        description: Unique identifier for the trip
+        data_tests:
+        - not_null
+        - unique
+        - relationships:
+            arguments:
+              field: tripid
+              to: ref('stg_trip')
+      - name: tripname
+        description: Name of the trip
+        data_tests:
+        - not_null
+      - name: tripisarchived
+        description: Indicates if the trip is archived
+        data_tests:
+        - accepted_values:
+            arguments:
+              values: [true, false]
+      - name: tripnumshipphases
+        description: Number of ship phases in the trip
+        data_tests:
+        - not_null
+        - dbt_utils.expression_is_true:
+            arguments:
+              expression: '>= 0'
+      - name: tripnumhotelphases
+        description: Number of hotel phases in the trip
+        data_tests:
+        - not_null
+        - dbt_utils.expression_is_true:
+            arguments:
+              expression: '>= 0'
+      - name: tripnumflightphases
+        description: Number of flight phases in the trip
+        data_tests:
+        - not_null
+        - dbt_utils.expression_is_true:
+            arguments:
+              expression: '>= 0'
+      - name: tripnumbusphases
+        description: Number of bus phases in the trip
+        data_tests:
+        - not_null
+        - dbt_utils.expression_is_true:
+            arguments:
+              expression: '>= 0'
+      - name: tripnumduringstayservicephases
+        description: Number of during stay service phases in the trip
+        data_tests:
+        - not_null
+        - dbt_utils.expression_is_true:
+            arguments:
+              expression: '>= 0'
+    data_tests:
+      - dbt_utils.expression_is_true:
+          name: trip_phase_count_consistency
+          arguments:
+            expression: 'tripnumshipphases + tripnumhotelphases + tripnumflightphases + tripnumbusphases + tripnumduringstayservicephases = tripnumphases'

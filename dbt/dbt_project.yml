@@ -28,5 +28,14 @@ models:
   imt_reservations:
     staging:
       +materialized: table
+
+vars:
+  tripphasetypes:
+    - Ship
+    - Hotel
+    - Bus
+    - Flight
+    - DuringStayService
+
 flags:
   require_generic_test_arguments_property: true

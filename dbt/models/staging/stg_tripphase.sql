@@ -17,5 +17,6 @@ select
     '{{ invocation_id }}' as dbt_runid
 
     -- TODO might want to extract the variable trip duration parameters (hotel stay length options)
+    -- TODO, ditto, deckOrCabin for ships
 
 from {{ source('erp_raw', 'ebdb_public_tripphase') }}

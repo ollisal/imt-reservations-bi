@@ -8,6 +8,10 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2024/11/04
+
+- Add dim_trip with number of trip phases info, to be expanded
+
 ### 2025/11/03
 
 - Add flight trip handling to int_tripproductstep
