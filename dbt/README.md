@@ -1,4 +1,6 @@
-IMT reservation history analysis, tables, based on dbt starter project
+# imt-reservations-bi
+
+Tables for IMT.fi reservation history analysis, built using dbt (could also be used for interactive BI)
 
 ### Author
 
