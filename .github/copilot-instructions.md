@@ -26,14 +26,14 @@ See `fct_reservation_funnel.sql` for the funnel progress scoring logic.
 ### Product Steps Pattern
 Trip bookings follow a structured pattern encoded in `int_tripproductstep.sql`:
 - Each trip has multiple phases (hotels/ships)
-- Product selection happens in order: departure → hotel/ship → room/cabin
+- Product selection happens in order: departure → flight? -> hotel+room -> ship+cabin
 - Steps are indexed sequentially for funnel analysis
 
 ## Development Workflow
 
 ### Setting Up
 1. Configure Redshift credentials in `~/.dbt/profiles.yml`
-2. Dependencies: dbt with Redshift adapter
+2. Install dependencies with pip install -r requirements.txt
 
 ### Common Commands
 ```bash
@@ -62,10 +62,13 @@ dbt build   # Run and test together
 3. Testing:
    - Add data tests in `schema.yml` files
    - Test relationships between models (see `models/intermediate/schema.yml`)
+   - Use new format for test definition with "arguments" key
 
 ## Common Patterns
 
+- Indent width is 4 spaces for SQL and Python, 2 for YAML
 - Use CTE-based SQL structure for readability
 - Follow dbt naming conventions: stg_, int_, fct_ prefixes
 - Implement proper Redshift optimization settings in model configs
-- Use single quotes for normal strings (double quotes only for SQL identifiers and such)
+- Use single quotes for normal strings (double quotes only for SQL identifiers and such).
+- Do not use unnecessary quotes at all in YAML files.
