@@ -31,12 +31,21 @@ mainsteps as (
     tripphaseid,
     tripphaseindex,
     tripphasetype,
-    case when tripphasetype = 'Hotel' then 'hotel' else 'ship' end as productsteptype,
-    (tripphaseindex + 1) * (case when tripphasetype = 'Hotel' then 1000 else 1000000 end) as _sortkey
+    case
+        when tripphasetype = 'Flight' then 'flight'
+        when tripphasetype = 'Hotel' then 'hotel'
+        else 'ship'
+        end as productsteptype,
+    (tripphaseindex + 1) * (
+        case
+        when tripphasetype = 'Flight' then 10
+        when tripphasetype = 'Hotel' then 1000
+        else 1000000
+    end) as _sortkey
 
     from base
 
-    where tripphasetype in ('Hotel', 'Ship')
+    where tripphasetype in ('Flight', 'Hotel', 'Ship')
 ),
 
 substeps as (

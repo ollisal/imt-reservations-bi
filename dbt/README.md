@@ -6,6 +6,22 @@ Olli Salli https://www.linkedin.com/in/ollisal/
 
 ### History
 
+#### 2025/11/03
+
+- Add flight trip handling to int_tripproductstep
+
+#### 2025/10/31
+
+- Move to dbt Fusion engine
+
+#### 2025/10/12
+
+- created fct_reservation_funnel
+
+#### 2025/10/08
+
+- added int_tripproductstep
+
 #### 2025/10/05
 
 - dbt connected to Redshift
