@@ -61,3 +61,34 @@ models:
           name: trip_phase_count_consistency
           arguments:
             expression: 'tripnumshipphases + tripnumhotelphases + tripnumflightphases + tripnumbusphases + tripnumduringstayservicephases = tripnumphases'
+
+  - name: fct_reservation_funnel
+    description: Fact table for funnel progress of each reservation
+    columns:
+      - name: reservationid
+        description: Unique identifier for the reservation
+        data_tests:
+        - not_null
+        - unique
+        - relationships:
+            arguments:
+              field: reservationid
+              to: ref('stg_reservation')
+      - name: tripid
+        description: Unique identifier for the trip associated with the reservation
+        data_tests:
+        - not_null
+        - relationships:
+            arguments:
+              field: tripid
+              to: ref('dim_trip')
+      # TODO other columns
+    data_tests:
+      - dbt_utils.expression_is_true:
+          name: productselection_abandoned_must_have_abandonstep
+          arguments:
+            expression: finalstage != 'ProductSelection' or abandonproductsteptype is not null
+      - dbt_utils.expression_is_true:
+          name: productselection_completed_must_not_have_abandonstep
+          arguments:
+            expression: finalstage = 'ProductSelection' or abandonproductsteptype is null

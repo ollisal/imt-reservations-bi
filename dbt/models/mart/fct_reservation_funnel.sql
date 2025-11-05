@@ -4,6 +4,7 @@
     sort=['departuredate', 'tripid'],
     sort_type='compound',
 ) }}
+-- TODO incremental materialization?
 
 with base as (
     select
@@ -25,6 +26,12 @@ with base as (
 
     from {{ ref('stg_reservation') }} r
     join {{ ref('stg_trip') }} trip using (tripid)
+
+    where createdate >= '2017-01-01'::date -- firstundecidedreservationview wasn't properly populated earlier in 2016
+),
+
+reconfigured_trips as (
+    select *, 'unknown'::varchar as productsteptype from {{ ref('ref_reconfigured_trips') }}
 ),
 
 funnel_staged as (
@@ -33,11 +40,21 @@ funnel_staged as (
     base.*,
 
     case
-    when status = 'Confirmed' then 'Confirmed'
-    else firstundecidedreservationview
+        when status = 'Confirmed' then 'Confirmed'
+        -- It seems for a few reservations the bump from ProductSelection -> PassengerInfo hasn't gone through although step index has been incremented (separate XHR requests)
+        when firstundecidedreservationview = 'ProductSelection' and firstundecidedstepindex = (
+            select numproductsteps from {{ ref('int_tripproductstep' )}} totalsteps
+            where base.tripid = totalsteps.tripid
+            and totalsteps.productstepindex = 0
+        ) then 'PassengerInfo'
+        else firstundecidedreservationview
     end finalstage,
 
-    abandonstep.productsteptype abandonproductsteptype,
+    case
+        when finalstage = 'ProductSelection'
+            then coalesce(rt.productsteptype, abandonstep.productsteptype)
+        else null
+    end abandonproductsteptype,
     abandonstep.numproductsteps totalproductsteps
 
     from base
@@ -47,6 +64,19 @@ funnel_staged as (
     and firstundecidedreservationview = 'ProductSelection'
     and base.tripid = abandonstep.tripid
     and firstundecidedstepindex = abandonstep.productstepindex
+
+    -- don't claim we understand product selection for since (probably) reconfigured trips
+    left join reconfigured_trips rt
+    on base.departuredate < rt.stable_since
+    and firstundecidedreservationview = 'ProductSelection'
+    and (
+        -- Known reconfiguration
+        base.tripid = rt.tripid
+        or
+        -- Wildcard for so old reservations which we don't bother to research still being valid
+        base.tripid not in (select tripid from reconfigured_trips where tripid is not null)
+        and rt.tripid is null
+    )
 )
 
 select
@@ -55,6 +85,7 @@ reservationid,
 
 {% for event in ['create', 'confirmation', 'departure'] %}
 
+-- TODO change this into date, not datetime
 {{ event }}date,
 extract(year from {{ event }}date) {{ event }}year,
 extract(month from {{ event }}date) {{ event }}month,

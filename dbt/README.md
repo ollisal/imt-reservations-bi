@@ -8,7 +8,12 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
-### 2024/11/04
+### 2025/11/05
+
+- Patch some ProductSelection reservations which have undeniably progressed past last product selection step, to indicate abandonment in PassengerInfo
+- Indicate abandon step being unknown for very old reservations, and reservations whose trip is known to have been since totally revamped
+
+### 2025/11/04
 
 - Add dim_trip with number of trip phases info, to be expanded
 
