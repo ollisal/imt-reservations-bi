@@ -2,6 +2,7 @@ black==25.9.0
 dbt-core==1.10.13
 dbt-postgres==1.9.1
 dbt-redshift==1.9.5
+redshift-connector==2.1.8
 ipython==9.6.0
 jupysql==0.11.1
 jupyter_core==5.8.1
