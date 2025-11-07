@@ -8,6 +8,10 @@
     sort_type='compound',
 ) }}
 
+-- Customers are Finnish so the reservation lifecycle events are considered to be in Helsinki timezone, but the timezone
+-- information seems to have been lost in the data lake
+{% set home_tz = 'Europe/Helsinki' %}
+
 with
     source as (
         select *
@@ -30,8 +34,8 @@ select
     departuredate,
 
     {% for event in ['create', 'confirmation', 'modify'] %}
-    {{ event }}time,
-    date_trunc('day', {{ event }}time) as {{ event }}date,
+    convert_timezone('{{ home_tz }}', {{ event }}time) at time zone '{{ home_tz }}' as {{ event }}time,
+    trunc(convert_timezone('{{ home_tz }}', {{ event }}time)) as {{ event }}date,
     {% endfor %}
 
     firstundecidedreservationview,

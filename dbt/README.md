@@ -8,6 +8,11 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2025/11/07
+
+- Ensure business appropriate date boundary handling for reservation create/confirmation/modifytime
+- Add less error prone date-only versions of above columns
+
 ### 2025/11/05
 
 - Patch some ProductSelection reservations which have undeniably progressed past last product selection step, to indicate abandonment in PassengerInfo

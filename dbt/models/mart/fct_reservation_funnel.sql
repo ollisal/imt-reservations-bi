@@ -85,7 +85,6 @@ reservationid,
 
 {% for event in ['create', 'confirmation', 'departure'] %}
 
--- TODO change this into date, not datetime
 {{ event }}date,
 extract(year from {{ event }}date) {{ event }}year,
 extract(month from {{ event }}date) {{ event }}month,
