@@ -2,6 +2,61 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+
+
+def _prepare_data(df, step_order):
+    """Pivot data and calculate percentages."""
+    pivot = df.pivot(index='abandonproductsteptype', columns='departureyear', values='count').fillna(0)
+
+    # Extract progressed row before reindexing
+    prog_counts = pivot.loc[pivot.index.isna()].iloc[0] if pivot.index.isna().any() else None
+
+    # Get only the step rows
+    pivot_steps = pivot[pivot.index.notna()].reindex(step_order, fill_value=0)
+
+    # Calculate totals including progressed
+    totals = pivot.sum(axis=0)
+
+    # Calculate percentages from total (all reservations)
+    pivot_pct = pivot_steps.div(totals, axis=1) * 100
+    prog_pct = prog_counts / totals * 100 if prog_counts is not None else None
+
+    return pivot_pct, prog_pct, totals
+
+
+def _draw_stacked_bars(ax, pivot_pct, colors):
+    """Draw stacked horizontal bars for each year."""
+    left = {2019: 0, 2024: 0}
+
+    for i, step in enumerate(pivot_pct.index):
+        for y_pos, year in enumerate([2019, 2024]):
+            pct = pivot_pct.loc[step, year]
+            ax.barh(y_pos, pct, left=left[year], height=0.5,
+                   label=step if y_pos == 0 else '', color=colors[i], alpha=0.8)
+
+            if pct > 5:
+                ax.text(left[year] + pct/2, y_pos, f'{pct:.1f}%',
+                       ha='center', va='center', fontsize=9, fontweight='bold')
+
+            left[year] += pct
+
+    return left
+
+
+def _draw_progressed_bars(ax, prog_pct, left_positions):
+    """Draw dashed outline bars for progressed reservations."""
+    if prog_pct is None:
+        return
+
+    for y_pos, year in enumerate([2019, 2024]):
+        if year in prog_pct.index:
+            pct = prog_pct[year]
+            ax.barh(y_pos, pct, left=left_positions[year], height=0.5,
+                   fill=False, edgecolor='steelblue', linewidth=2, linestyle='--')
+            if pct > 5:
+                ax.text(left_positions[year] + pct/2, y_pos, f'{pct:.1f}%',
+                       ha='center', va='center', fontsize=9, fontweight='bold')
 
 
 def plot_product_step_comparison(df, title):
@@ -15,62 +70,28 @@ def plot_product_step_comparison(df, title):
     title : str
         Chart title
     """
-    # Pivot data and calculate percentages
-    pivot_df = df.pivot(index='abandonproductsteptype', columns='departureyear', values='count').fillna(0)
-
-    # Calculate totals for each year
-    totals = pivot_df.sum(axis=0)
-
-    pivot_pct = pivot_df.div(totals, axis=1) * 100
-
-    # Define step order
     step_order = ['departure', 'hotel', 'room', 'flight', 'ship', 'cabin']
-    pivot_pct = pivot_pct.reindex(step_order, fill_value=0)
+    pivot_pct, prog_pct, totals = _prepare_data(df, step_order)
 
-    # Visualization
     fig, ax = plt.subplots(figsize=(12, 6))
+    colors = plt.cm.Pastel1(np.linspace(0, 1, len(step_order))) # pyright: ignore[reportAttributeAccessIssue]
 
-    years = [2019, 2024]
-    y_pos = np.arange(len(years))
+    left_positions = _draw_stacked_bars(ax, pivot_pct, colors)
+    _draw_progressed_bars(ax, prog_pct, left_positions)
 
-    # Create stacked horizontal bars
-    left_2019 = 0
-    left_2024 = 0
-
-    colors = plt.cm.Pastel1(np.linspace(0, 1, len(pivot_pct.index))) # pyright: ignore[reportAttributeAccessIssue]
-
-    for i, step in enumerate(pivot_pct.index):
-        # 2019 bar (position 0 - top)
-        ax.barh(0, pivot_pct.loc[step, 2019], left=left_2019,
-                height=0.5, label=step, color=colors[i], alpha=0.8)
-
-        # Add percentage text for larger segments
-        pct_val_2019 = pivot_pct.loc[step, 2019]
-        if pct_val_2019 > 5:
-            ax.text(left_2019 + pct_val_2019/2, 0, f'{pct_val_2019:.1f}%',
-                    ha='center', va='center', fontsize=9, fontweight='bold')
-
-        left_2019 += pivot_pct.loc[step, 2019]
-
-        # 2024 bar (position 1 - bottom)
-        ax.barh(1, pivot_pct.loc[step, 2024], left=left_2024,
-                height=0.5, color=colors[i], alpha=0.8)
-
-        # Add percentage text for larger segments
-        pct_val_2024 = pivot_pct.loc[step, 2024]
-        if pct_val_2024 > 5:
-            ax.text(left_2024 + pct_val_2024/2, 1, f'{pct_val_2024:.1f}%',
-                    ha='center', va='center', fontsize=9, fontweight='bold')
-
-        left_2024 += pivot_pct.loc[step, 2024]
-
+    # Configure axes
     ax.invert_yaxis()
-    ax.set_yticks(y_pos)
+    ax.set_yticks([0, 1])
     ax.set_yticklabels([f'2019 (n={int(totals[2019]):,})', f'2024 (n={int(totals[2024]):,})'])
     ax.set_xlabel('Percentage of ProductSelection Abandonments')
     ax.set_title(title)
     ax.set_xlim(0, 100)
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=len(step_order), frameon=False)
+
+    # Add legend
+    handles, labels = ax.get_legend_handles_labels()
+    prog_patch = Rectangle((0, 0), 1, 1, fill=False, edgecolor='steelblue', linewidth=2, linestyle='--')
+    ax.legend(handles + [prog_patch], labels + ['Progressed'],
+             loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=len(step_order)+1, frameon=False)
 
     fig.tight_layout()
     plt.show()

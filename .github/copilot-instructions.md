@@ -72,3 +72,4 @@ dbt build   # Run and test together
 - Implement proper Redshift optimization settings in model configs
 - Use single quotes for normal strings (double quotes only for SQL identifiers and such).
 - Do not use unnecessary quotes at all in YAML files.
+- Prefer using utility functions (Python code) and CTEs (SQL code) to keep code modular and readable. No overly long functions/queries.
