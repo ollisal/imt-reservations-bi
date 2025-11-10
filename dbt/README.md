@@ -8,6 +8,10 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2025/11/10
+
+- Add stg_travelstep and stg_tripdestination staging models
+
 ### 2025/11/07
 
 - Ensure business appropriate date boundary handling for reservation create/confirmation/modifytime

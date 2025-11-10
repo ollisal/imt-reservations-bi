@@ -17,3 +17,45 @@ sources:
       - name: ebdb_public_trip
       - name: ebdb_public_tripphase
       - name: ebdb_public_tripdestination
+
+models:
+  - name: stg_trip
+    columns:
+      - name: tripid
+        tests:
+          - unique
+          - not_null
+      - name: primarydestinationid
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_travelstep')
+                field: travelstepid
+
+  - name: stg_travelstep
+    columns:
+      - name: travelstepid
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_tripdestination
+    columns:
+      - name: tripdestinationid
+        tests:
+          - unique
+          - not_null
+      - name: tripid
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_trip')
+                field: tripid
+      - name: travelstepid
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_travelstep')
+                field: travelstepid
