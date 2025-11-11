@@ -11,6 +11,7 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 ### 2025/11/11
 
 - Add stg_triptype trivial staging model
+- Add flattened int_travelstephierarchy model
 
 ### 2025/11/10
 

@@ -1,6 +1,6 @@
 models:
   - name: int_tripproductstep
-    description: "Decoding of product selection step indices (firstUndecidedStepIndex) to type & phase ID"
+    description: Decoding of product selection step indices (firstUndecidedStepIndex) to type & phase ID
     columns:
       - name: tripid
         data_tests:
@@ -33,3 +33,60 @@ models:
               arguments:
                 field: tripphaseid
                 to: ref('stg_tripphase')
+
+  - name: int_travelstephierarchy
+    description: Flattens the travelstep hierarchy (Hotel/DSS->City->Country, BusRouteGroup->Country, Flight, Ship individually)
+    columns:
+      - name: travelstepid
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                field: travelstepid
+                to: ref('stg_travelstep')
+      - name: travelstepname
+        data_tests:
+          - not_null
+      - name: travelsteptype
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: "{{ var('travelsteptypes') }}"
+      - name: isgdshotel
+        description: Indicates if the travelstep is a GDS hotel
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: 'IN (true, false)'
+              config:
+                where: "travelsteptype = 'Hotel'"
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: 'IS NULL'
+              config:
+                where: "travelsteptype != 'Hotel'"
+      - name: cityid
+        data_tests:
+          - relationships:
+              arguments:
+                field: travelstepid
+                to: ref('stg_travelstep')
+          - not_null: &where_in_city
+              config:
+                where: "travelsteptype in ('Hotel', 'DuringStayService', 'City')"
+      - name: cityname
+        data_tests:
+          - not_null: *where_in_city
+      - name: countryid
+        data_tests:
+          - relationships:
+              arguments:
+                field: travelstepid
+                to: ref('stg_travelstep')
+          - not_null: &where_in_country
+              config:
+                where: "travelsteptype in ('Hotel', 'DuringStayService', 'City', 'Country', 'BusRouteGroup')"
+      - name: countryname
+        data_tests:
+          - not_null: *where_in_country
