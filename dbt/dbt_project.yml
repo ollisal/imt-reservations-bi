@@ -30,6 +30,20 @@ models:
       +materialized: table
 
 vars:
+  travelsteptypes:
+    - Hotel
+    - DuringStayService
+    - City
+    - BusRouteGroup
+    - Country
+    - Flight
+    - Ship
+    - Group # The superfluous parent of Flights, Ships
+  triptypes:
+    - HotelTrip
+    - SpaTrip
+    - Cruise
+    - Tour
   tripphasetypes:
     - Ship
     - Hotel

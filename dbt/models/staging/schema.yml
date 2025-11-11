@@ -39,6 +39,21 @@ models:
         data_tests:
           - unique
           - not_null
+      - name: travelsteptype
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: "{{ var('travelsteptypes') }}"
+      - name: parentid
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_travelstep')
+                field: travelstepid
+          - not_null:
+              config:
+                where: "travelsteptype in ('Hotel', 'DuringStayService', 'City', 'BusRouteGroup')"
 
   - name: stg_tripdestination
     columns:
@@ -77,7 +92,7 @@ models:
           - not_null
           - accepted_values:
               arguments:
-                values: ['HotelTrip', 'SpaTrip', 'Cruise', 'Tour']
+                values: "{{ var('triptypes') }}"
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
