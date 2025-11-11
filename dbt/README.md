@@ -8,6 +8,10 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2025/11/11
+
+- Add stg_triptype trivial staging model
+
 ### 2025/11/10
 
 - Add stg_travelstep and stg_tripdestination staging models

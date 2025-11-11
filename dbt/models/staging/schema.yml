@@ -17,6 +17,7 @@ sources:
       - name: ebdb_public_trip
       - name: ebdb_public_tripphase
       - name: ebdb_public_tripdestination
+      - name: ebdb_public_triptype
 
 models:
   - name: stg_trip
@@ -41,10 +42,6 @@ models:
 
   - name: stg_tripdestination
     columns:
-      - name: tripdestinationid
-        tests:
-          - unique
-          - not_null
       - name: tripid
         tests:
           - not_null
@@ -59,3 +56,31 @@ models:
               arguments:
                 to: ref('stg_travelstep')
                 field: travelstepid
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - tripid
+              - travelstepid
+
+  - name: stg_triptype
+    columns:
+      - name: tripid
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_trip')
+                field: tripid
+      - name: type
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['HotelTrip', 'SpaTrip', 'Cruise', 'Tour']
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - tripid
+              - type
