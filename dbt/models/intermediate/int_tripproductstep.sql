@@ -92,6 +92,6 @@ select *,
 (max(productstepindex) over (partition by tripid)) + 1 as numproductsteps,
 
 current_timestamp as dbt_loadtime,
-'{{ invocation_id }}' as dbt_runid
+'{{ invocation_id }}'::text as dbt_runid
 
 from rankedsteps

@@ -73,3 +73,12 @@ dbt build   # Run and test together
 - Use single quotes for normal strings (double quotes only for SQL identifiers and such).
 - Do not use unnecessary quotes at all in YAML files.
 - Prefer using utility functions (Python code) and CTEs (SQL code) to keep code modular and readable. No overly long functions/queries.
+
+## Misc
+
+Use this expression with an explicit type cast to text for dbt run ID in models:
+
+```sql
+'{{ invocation_id }}'::text as dbt_runid
+```
+Otherwise unit tests break with dbt Fusion, as the query is put into a CTE and otherwise gets an "unknown" type.

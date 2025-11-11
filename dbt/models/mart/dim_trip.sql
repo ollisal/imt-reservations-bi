@@ -40,7 +40,7 @@ trip_with_phases_counted as (
         count(tripphasetype) tripnumphases,
 
         current_timestamp as dbt_loadtime,
-        '{{ invocation_id }}' as dbt_runid
+        '{{ invocation_id }}'::text as dbt_runid
 
     from trip_with_phases
     group by tripid
