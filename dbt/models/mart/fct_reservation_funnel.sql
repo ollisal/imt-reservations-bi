@@ -107,6 +107,9 @@ case
     when finalstage = 'ReserverInfo' then 0.7
     when finalstage = 'PassengerInfo' then 0.4
     else (abandonproductstepindex::float / totalproductsteps) * 0.4
-end as funnel_progress
+end as funnel_progress,
+
+current_timestamp as dbt_loadtime,
+'{{ invocation_id }}' as dbt_runid
 
 from funnel_staged

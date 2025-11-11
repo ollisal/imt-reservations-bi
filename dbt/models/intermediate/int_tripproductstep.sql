@@ -89,6 +89,9 @@ rankedsteps as (
 -- it's typically just choiceless bus etc steps which are skipped)
 
 select *,
-(max(productstepindex) over (partition by tripid)) + 1 as numproductsteps
+(max(productstepindex) over (partition by tripid)) + 1 as numproductsteps,
+
+current_timestamp as dbt_loadtime,
+'{{ invocation_id }}' as dbt_runid
 
 from rankedsteps
