@@ -90,3 +90,44 @@ models:
       - name: countryname
         data_tests:
           - not_null: *where_in_country
+
+unit_tests:
+  - name: travelstephierarchy_test_hoteldss_citybus_country
+    model: int_travelstephierarchy
+    given:
+      - input: ref('stg_travelstep')
+        rows:
+          # Countries
+          - { travelstepid: 1, travelstepname: 'Viro', travelsteptype: 'Country', parentid: null }
+          - { travelstepid: 2, travelstepname: 'Ruotsi', travelsteptype: 'Country', parentid: null }
+          # Cities
+          - { travelstepid: 3, travelstepname: 'Tallinna', travelsteptype: 'City', parentid: 1 }
+          - { travelstepid: 4, travelstepname: 'Pärnu', travelsteptype: 'City', parentid: 1 }
+          # A hotel
+          - { travelstepid: 5, travelstepname: 'Viru', travelsteptype: 'Hotel', parentid: 3, sellhotelfromgds: true }
+          # A during stay service
+          - { travelstepid: 6, travelstepname: 'Karaokebaarikierros', travelsteptype: 'DuringStayService', parentid: 3 }
+          # A bus route group
+          - { travelstepid: 7, travelstepname: 'Tallinna-Pärnu', travelsteptype: 'BusRouteGroup', parentid: 1 }
+    expect:
+      rows:
+        - { travelstepid: 1, travelstepname: 'Viro', travelsteptype: 'Country', isgdshotel: null, cityid: null, cityname: null, countryid: 1, countryname: 'Viro' }
+        - { travelstepid: 2, travelstepname: 'Ruotsi', travelsteptype: 'Country', isgdshotel: null, cityid: null, cityname: null, countryid: 2, countryname: 'Ruotsi' }
+        - { travelstepid: 3, travelstepname: 'Tallinna', travelsteptype: 'City', isgdshotel: null, cityid: 3, cityname: 'Tallinna', countryid: 1, countryname: 'Viro' }
+        - { travelstepid: 4, travelstepname: 'Pärnu', travelsteptype: 'City', isgdshotel: null, cityid: 4, cityname: 'Pärnu', countryid: 1, countryname: 'Viro' }
+        - { travelstepid: 5, travelstepname: 'Viru', travelsteptype: 'Hotel', isgdshotel: true, cityid: 3, cityname: 'Tallinna', countryid: 1, countryname: 'Viro' }
+        - { travelstepid: 6, travelstepname: 'Karaokebaarikierros', travelsteptype: 'DuringStayService', isgdshotel: null, cityid: 3, cityname: 'Tallinna', countryid: 1, countryname: 'Viro' }
+        - { travelstepid: 7, travelstepname: 'Tallinna-Pärnu', travelsteptype: 'BusRouteGroup', isgdshotel: null, cityid: null, cityname: null, countryid: 1, countryname: 'Viro' }
+  - name: travelstephierarchy_test_flight_ship
+    model: int_travelstephierarchy
+    given:
+      - input: ref('stg_travelstep')
+        rows:
+          # A flight
+          - { travelstepid: 10, travelstepname: 'Helsinki-Tallinna Finnair', travelsteptype: 'Flight', parentid: null }
+          # A ship
+          - { travelstepid: 11, travelstepname: 'Helsinki-Tallinna Ferry', travelsteptype: 'Ship', parentid: null }
+    expect:
+      rows:
+        - { travelstepid: 10, travelstepname: 'Helsinki-Tallinna Finnair', travelsteptype: 'Flight', isgdshotel: null, cityid: null, cityname: null, countryid: null, countryname: null }
+        - { travelstepid: 11, travelstepname: 'Helsinki-Tallinna Ferry', travelsteptype: 'Ship', isgdshotel: null, cityid: null, cityname: null, countryid: null, countryname: null }
