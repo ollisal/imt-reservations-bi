@@ -124,9 +124,9 @@ unit_tests:
       - input: ref('stg_travelstep')
         rows:
           # A flight
-          - { travelstepid: 10, travelstepname: 'Helsinki-Tallinna Finnair', travelsteptype: 'Flight', parentid: null }
+          - { travelstepid: 10, travelstepname: 'Helsinki-Tallinna Finnair', travelsteptype: 'Flight', parentid: 998 }
           # A ship
-          - { travelstepid: 11, travelstepname: 'Helsinki-Tallinna Ferry', travelsteptype: 'Ship', parentid: null }
+          - { travelstepid: 11, travelstepname: 'Helsinki-Tallinna Ferry', travelsteptype: 'Ship', parentid: 999 }
     expect:
       rows:
         - { travelstepid: 10, travelstepname: 'Helsinki-Tallinna Finnair', travelsteptype: 'Flight', isgdshotel: null, cityid: null, cityname: null, countryid: null, countryname: null }
