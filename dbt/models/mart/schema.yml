@@ -21,6 +21,30 @@ models:
         - accepted_values:
             arguments:
               values: [true, false]
+      - name: definingtype
+        data_tests:
+          - dbt_utils.at_least_one
+      - name: iscruise
+        data_tests: &has_non_constant_values_truefalse
+          - not_null
+          - dbt_utils.not_constant
+          - accepted_values:
+              arguments:
+                values: [true, false]
+      - name: ishoteltrip
+        data_tests: *has_non_constant_values_truefalse
+      - name: isspatrip
+        data_tests: *has_non_constant_values_truefalse
+      - name: istour
+        data_tests: *has_non_constant_values_truefalse
+      - name: tripnumphases
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          - dbt_utils.expression_is_true:
+              name: tripnumphases_positive
+              arguments:
+                expression: '>= 0'
     data_tests:
       - dbt_utils.equal_rowcount:
           arguments:
