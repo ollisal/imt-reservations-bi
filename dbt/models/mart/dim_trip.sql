@@ -5,14 +5,19 @@
 ) }}
 
 with trips as (
-    select * from {{ ref('stg_trip') }}
-),
 
-phases as (
-    select * from {{ ref('stg_tripphase') }}
+    select
+        tripid,
+        name as tripname,
+        isarchived as tripisarchived,
+        allowowncar,
+        requireowncar
+    from {{ ref('stg_trip') }}
+
 ),
 
 trip_type_info as (
+
     select
         tripid,
         definingtype,
@@ -20,55 +25,53 @@ trip_type_info as (
         ishoteltrip,
         isspatrip,
         istour
-
     from {{ ref('int_triptypepriority') }}
+
 ),
 
-trip_with_phases as (
-    select
-        t.tripid,
-        t.name,
-        t.allowowncar,
-        t.requireowncar,
-        t.isarchived,
+trip_phase_counts as (
 
-        p.tripphaseid,
-        p.tripphaseindex,
-        p.tripphasetype
-
-    from trips t
-    left join phases p on t.tripid = p.tripid
-),
-
-trip_with_phases_counted as (
     select
         tripid,
-        any_value(name) tripname,
-        any_value(isarchived) tripisarchived,
-
         {% for type in var('tripphasetypes') %}
-        sum(case when tripphasetype = '{{ type }}' then 1 else 0 end) as tripnum{{ type | lower }}phases,
+        tripnum{{ type | lower }}phases,
         {% endfor %}
-        count(tripphasetype) tripnumphases
+        tripnumphases
+    from {{ ref('int_tripphasecounts') }}
 
-    from trip_with_phases
-    group by tripid
 ),
 
 final as (
+
     select
-        *,
+        trips.*,
+
+        trip_type_info.definingtype,
+        trip_type_info.iscruise,
+        trip_type_info.ishoteltrip,
+        trip_type_info.isspatrip,
+        trip_type_info.istour,
+
+        trip_phase_counts.tripnumphases,
+        {% for type in var('tripphasetypes') %}
+        trip_phase_counts.tripnum{{ type | lower }}phases,
+        {% endfor %}
 
         current_timestamp as dbt_loadtime,
         '{{ invocation_id }}'::text as dbt_runid
 
-    from trip_with_phases_counted
+    from trips
 
     inner join trip_type_info
-    using (tripid)
+        using (tripid)
+
+    inner join trip_phase_counts
+        using (tripid)
 
     -- TODO add destination info
     -- TODO create separate row for trip when own car is chosen?
+
 )
 
 select * from final
+

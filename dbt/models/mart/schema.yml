@@ -21,46 +21,7 @@ models:
         - accepted_values:
             arguments:
               values: [true, false]
-      - name: tripnumshipphases
-        description: Number of ship phases in the trip
-        data_tests:
-        - not_null
-        - dbt_utils.expression_is_true:
-            arguments:
-              expression: '>= 0'
-      - name: tripnumhotelphases
-        description: Number of hotel phases in the trip
-        data_tests:
-        - not_null
-        - dbt_utils.expression_is_true:
-            arguments:
-              expression: '>= 0'
-      - name: tripnumflightphases
-        description: Number of flight phases in the trip
-        data_tests:
-        - not_null
-        - dbt_utils.expression_is_true:
-            arguments:
-              expression: '>= 0'
-      - name: tripnumbusphases
-        description: Number of bus phases in the trip
-        data_tests:
-        - not_null
-        - dbt_utils.expression_is_true:
-            arguments:
-              expression: '>= 0'
-      - name: tripnumduringstayservicephases
-        description: Number of during stay service phases in the trip
-        data_tests:
-        - not_null
-        - dbt_utils.expression_is_true:
-            arguments:
-              expression: '>= 0'
     data_tests:
-      - dbt_utils.expression_is_true:
-          name: trip_phase_count_consistency
-          arguments:
-            expression: 'tripnumshipphases + tripnumhotelphases + tripnumflightphases + tripnumbusphases + tripnumduringstayservicephases = tripnumphases'
       - dbt_utils.equal_rowcount:
           arguments:
             compare_model: ref('stg_trip')

@@ -136,6 +136,61 @@ models:
           arguments:
             compare_model: ref('stg_trip')
 
+  - name: int_tripphasecounts
+    description: Counts the number of phases for each trip by phase type
+    columns:
+      - name: tripid
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                field: tripid
+                to: ref('stg_trip')
+      - name: tripnumshipphases
+        description: Number of ship phases in the trip
+        data_tests:
+        - not_null
+        - dbt_utils.expression_is_true:
+            arguments:
+              expression: '>= 0'
+      - name: tripnumhotelphases
+        description: Number of hotel phases in the trip
+        data_tests:
+        - not_null
+        - dbt_utils.expression_is_true:
+            arguments:
+              expression: '>= 0'
+      - name: tripnumflightphases
+        description: Number of flight phases in the trip
+        data_tests:
+        - not_null
+        - dbt_utils.expression_is_true:
+            arguments:
+              expression: '>= 0'
+      - name: tripnumbusphases
+        description: Number of bus phases in the trip
+        data_tests:
+        - not_null
+        - dbt_utils.expression_is_true:
+            arguments:
+              expression: '>= 0'
+      - name: tripnumduringstayservicephases
+        description: Number of during stay service phases in the trip
+        data_tests:
+        - not_null
+        - dbt_utils.expression_is_true:
+            arguments:
+              expression: '>= 0'
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('stg_trip')
+      - dbt_utils.expression_is_true:
+          name: trip_phase_count_consistency
+          arguments:
+            expression: 'tripnumshipphases + tripnumhotelphases + tripnumflightphases + tripnumbusphases + tripnumduringstayservicephases = tripnumphases'
+
 unit_tests:
   # For int_travelstephierarchy
   - name: travelstephierarchy_test_hoteldss_citybus_country
@@ -290,3 +345,37 @@ unit_tests:
     expect:
       rows:
         - { tripid: 2007, definingdestinationid: null }
+
+  # For int_tripphasecounts
+  - name: tripphasecounts_test_multiple_phase_types
+    model: int_tripphasecounts
+    given:
+      - input: ref('stg_trip')
+        rows:
+          - { tripid: 3001 }
+          - { tripid: 3002 }
+      - input: ref('stg_tripphase')
+        rows:
+          # Trip 3001: 2 hotels, 1 ship, 1 bus
+          - { tripid: 3001, tripphasetype: 'Hotel' }
+          - { tripid: 3001, tripphasetype: 'Hotel' }
+          - { tripid: 3001, tripphasetype: 'Ship' }
+          - { tripid: 3001, tripphasetype: 'Bus' }
+          # Trip 3002: 1 flight, 1 hotel
+          - { tripid: 3002, tripphasetype: 'Flight' }
+          - { tripid: 3002, tripphasetype: 'Hotel' }
+    expect:
+      rows:
+        - { tripid: 3001, tripnumshipphases: 1, tripnumhotelphases: 2, tripnumbusphases: 1, tripnumflightphases: 0, tripnumduringstayservicephases: 0, tripnumphases: 4 }
+        - { tripid: 3002, tripnumshipphases: 0, tripnumhotelphases: 1, tripnumbusphases: 0, tripnumflightphases: 1, tripnumduringstayservicephases: 0, tripnumphases: 2 }
+  - name: tripphasecounts_test_no_phases
+    model: int_tripphasecounts
+    given:
+      - input: ref('stg_trip')
+        rows:
+          - { tripid: 3003 }
+      - input: ref('stg_tripphase')
+        rows: []
+    expect:
+      rows:
+        - { tripid: 3003, tripnumshipphases: 0, tripnumhotelphases: 0, tripnumbusphases: 0, tripnumflightphases: 0, tripnumduringstayservicephases: 0, tripnumphases: 0 }
