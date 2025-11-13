@@ -113,6 +113,29 @@ models:
           arguments:
             compare_model: ref('stg_trip')
 
+  - name: int_tripdestinationpriority
+    description: Determines the defining destination for each trip based on primarydestinationid or fallback logic
+    columns:
+      - name: tripid
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                field: tripid
+                to: ref('stg_trip')
+      - name: definingdestinationid
+        description: The defining destination for the trip (can be NULL if no destinations)
+        data_tests:
+          - relationships:
+              arguments:
+                field: travelstepid
+                to: ref('stg_travelstep')
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('stg_trip')
+
 unit_tests:
   # For int_travelstephierarchy
   - name: travelstephierarchy_test_hoteldss_citybus_country
@@ -202,3 +225,68 @@ unit_tests:
       rows:
         - { tripid: 999, definingtype: 'annoying-bug', iscruise: false, ishoteltrip: false, isspatrip: false, istour: false }
         - { tripid: 1004, definingtype: null, iscruise: false, ishoteltrip: false, isspatrip: false, istour: false }
+
+  # For int_tripdestinationpriority
+  - name: tripdestinationpriority_test_primarydestinationid_set
+    model: int_tripdestinationpriority
+    given:
+      - input: ref('stg_trip')
+        rows:
+          - { tripid: 2001, primarydestinationid: 11 }
+          - { tripid: 2002, primarydestinationid: 20 }
+      - input: ref('stg_tripdestination')
+        rows:
+          - { tripid: 2001, travelstepid: 10 }
+          - { tripid: 2001, travelstepid: 11 }
+          - { tripid: 2002, travelstepid: 20 }
+      - input: ref('stg_travelstep')
+        rows:
+          - { travelstepid: 10, travelsteptype: 'Hotel' }
+          - { travelstepid: 11, travelsteptype: 'City' }
+          - { travelstepid: 20, travelsteptype: 'Country' }
+    expect:
+      rows:
+        - { tripid: 2001, definingdestinationid: 11 }
+        - { tripid: 2002, definingdestinationid: 20 }
+  - name: tripdestinationpriority_test_fallback_most_granular_singular
+    model: int_tripdestinationpriority
+    given:
+      - input: ref('stg_trip')
+        format: sql
+        rows: |
+          select 2003 as tripid, cast(null as bigint) as primarydestinationid union all
+          select 2004 as tripid, cast(null as bigint) as primarydestinationid
+      - input: ref('stg_tripdestination')
+        rows:
+          # Trip 2003: One hotel (granularity 30) and one city (20) -> picks hotel (more granular)
+          - { tripid: 2003, travelstepid: 30 }
+          - { tripid: 2003, travelstepid: 31 }
+          # Trip 2004: Two cities (20) and one country (11) -> picks country (singular)
+          - { tripid: 2004, travelstepid: 40 }
+          - { tripid: 2004, travelstepid: 41 }
+          - { tripid: 2004, travelstepid: 42 }
+      - input: ref('stg_travelstep')
+        rows:
+          - { travelstepid: 30, travelsteptype: 'Hotel' }
+          - { travelstepid: 31, travelsteptype: 'City' }
+          - { travelstepid: 40, travelsteptype: 'City' }
+          - { travelstepid: 41, travelsteptype: 'City' }
+          - { travelstepid: 42, travelsteptype: 'Country' }
+    expect:
+      rows:
+        - { tripid: 2003, definingdestinationid: 30 }
+        - { tripid: 2004, definingdestinationid: 42 }
+  - name: tripdestinationpriority_test_no_destinations
+    model: int_tripdestinationpriority
+    given:
+      - input: ref('stg_trip')
+        format: sql
+        rows: |
+          select 2007 as tripid, cast(null as bigint) as primarydestinationid
+      - input: ref('stg_tripdestination')
+        rows: []
+      - input: ref('stg_travelstep')
+        rows: []
+    expect:
+      rows:
+        - { tripid: 2007, definingdestinationid: null }

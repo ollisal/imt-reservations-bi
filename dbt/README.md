@@ -12,6 +12,7 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 - Add int_triptypepriority, which normalizes trip type classification differences
 - Add trip type classification to dim_trip
+- Add similar int_tripdestinationpriority
 
 ### 2025/11/11
 
