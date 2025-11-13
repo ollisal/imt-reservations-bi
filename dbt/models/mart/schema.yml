@@ -61,6 +61,9 @@ models:
           name: trip_phase_count_consistency
           arguments:
             expression: 'tripnumshipphases + tripnumhotelphases + tripnumflightphases + tripnumbusphases + tripnumduringstayservicephases = tripnumphases'
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('stg_trip')
 
   - name: fct_reservation_funnel
     description: Fact table for funnel progress of each reservation

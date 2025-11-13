@@ -68,6 +68,7 @@ dbt build   # Run and test together
 
 - Indent width is 4 spaces for SQL and Python, 2 for YAML
 - Use CTE-based SQL structure for readability
+- Both CTEs and tables are named in singular, lowercasealltogether, for consistency (unfortunately) with the source
 - Follow dbt naming conventions: stg_, int_, fct_ prefixes
 - Implement proper Redshift optimization settings in model configs
 - Use single quotes for normal strings (double quotes only for SQL identifiers and such).
@@ -81,4 +82,4 @@ Use this expression with an explicit type cast to text for dbt run ID in models:
 ```sql
 '{{ invocation_id }}'::text as dbt_runid
 ```
-Otherwise unit tests break with dbt Fusion, as the query is put into a CTE and otherwise gets an "unknown" type.
+Otherwise unit tests break with dbt Fusion, as the query is put into a CTE and would get an "unknown" type.

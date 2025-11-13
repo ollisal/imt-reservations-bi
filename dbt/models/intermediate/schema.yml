@@ -91,7 +91,30 @@ models:
         data_tests:
           - not_null: *where_in_country
 
+  - name: int_triptypepriority
+    description: Determines the defining trip type and other types for each trip based on priority rules
+    columns:
+      - name: tripid
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                field: tripid
+                to: ref('stg_trip')
+      - name: definingtype
+        description: The defining trip type for the trip based on priority rules (can be NULL)
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: "{{ var('triptypes') + ['Cruise-HotelTrip'] }}"
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('stg_trip')
+
 unit_tests:
+  # For int_travelstephierarchy
   - name: travelstephierarchy_test_hoteldss_citybus_country
     model: int_travelstephierarchy
     given:
@@ -131,3 +154,51 @@ unit_tests:
       rows:
         - { travelstepid: 10, travelstepname: 'Helsinki-Tallinna Finnair', travelsteptype: 'Flight', isgdshotel: null, cityid: null, cityname: null, countryid: null, countryname: null }
         - { travelstepid: 11, travelstepname: 'Helsinki-Tallinna Ferry', travelsteptype: 'Ship', isgdshotel: null, cityid: null, cityname: null, countryid: null, countryname: null }
+
+  # For int_triptypepriority
+  - name: triptypepriority_test_definingtype_from_primarytype
+    model: int_triptypepriority
+    given:
+      - input: ref('stg_trip')
+        rows:
+          # This should get the defining type from primarytype
+          - { tripid: 1001, name: 'Floating Spa 23h', primarytype: 'Cruise' }
+      - input: ref('stg_triptype')
+        rows:
+          - { tripid: 1001, type: 'Cruise' }
+          - { tripid: 1001, type: 'SpaTrip' }
+    expect:
+      rows:
+        - { tripid: 1001, definingtype: 'Cruise', iscruise: true, ishoteltrip: false, isspatrip: true, istour: false }
+  - name: triptypepriority_test_without_primarytype
+    model: int_triptypepriority
+    given:
+      - input: ref('stg_trip')
+        rows:
+          - { tripid: 999, name: 'fake-give-type-to-redshift-adapter', primarytype: 'annoying-bug' }
+          - { tripid: 1002, name: 'Luxury Hotels Around the Baltic', primarytype: null }
+          - { tripid: 1003, name: 'Wild Cruise, Hangover Hotel', primarytype: null }
+      - input: ref('stg_triptype')
+        rows:
+          - { tripid: 1002, type: 'HotelTrip' }
+          - { tripid: 1002, type: 'Tour' } # Takes precedence
+          - { tripid: 1003, type: 'Cruise' } # Equal...
+          - { tripid: 1003, type: 'HotelTrip' } # ...weight, concatenated
+    expect:
+      rows:
+        - { tripid: 999, definingtype: 'annoying-bug', iscruise: false, ishoteltrip: false, isspatrip: false, istour: false }
+        - { tripid: 1002, definingtype: 'Tour', iscruise: false, ishoteltrip: true, isspatrip: false, istour: true }
+        - { tripid: 1003, definingtype: 'Cruise-HotelTrip', iscruise: true, ishoteltrip: true, isspatrip: false, istour: false }
+  - name: triptypepriority_test_no_types
+    model: int_triptypepriority
+    given:
+      - input: ref('stg_trip')
+        rows:
+          - { tripid: 999, name: 'fake-give-type-to-redshift-adapter', primarytype: 'annoying-bug' }
+          - { tripid: 1004, name: 'Mystery Trip', primarytype: null }
+      - input: ref('stg_triptype')
+        rows: []
+    expect:
+      rows:
+        - { tripid: 999, definingtype: 'annoying-bug', iscruise: false, ishoteltrip: false, isspatrip: false, istour: false }
+        - { tripid: 1004, definingtype: null, iscruise: false, ishoteltrip: false, isspatrip: false, istour: false }

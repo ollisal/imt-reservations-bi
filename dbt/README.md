@@ -8,6 +8,10 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2025/11/13
+
+- Add int_triptypepriority, which normalizes trip type classification differences
+
 ### 2025/11/11
 
 - Add stg_triptype trivial staging model
