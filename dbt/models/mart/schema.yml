@@ -45,6 +45,26 @@ models:
               name: tripnumphases_positive
               arguments:
                 expression: '>= 0'
+      - name: destinationid
+        data_tests: &has_non_constant_travelstepid
+          - dbt_utils.at_least_one
+          - dbt_utils.not_constant
+          - relationships:
+              arguments:
+                to: ref('stg_travelstep')
+                field: travelstepid
+      - name: destinationtype
+        data_tests:
+          - dbt_utils.at_least_one
+          - dbt_utils.not_constant
+      - name: destinationhotelid
+        data_tests: *has_non_constant_travelstepid
+      - name: destinationcityid
+        data_tests: *has_non_constant_travelstepid
+      - name: destinationcountryid
+        data_tests: *has_non_constant_travelstepid
+      - name: destinationshipid
+        data_tests: *has_non_constant_travelstepid
     data_tests:
       - dbt_utils.equal_rowcount:
           arguments:
