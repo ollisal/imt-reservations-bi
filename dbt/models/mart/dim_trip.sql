@@ -12,6 +12,18 @@ phases as (
     select * from {{ ref('stg_tripphase') }}
 ),
 
+trip_type_info as (
+    select
+        tripid,
+        definingtype,
+        iscruise,
+        ishoteltrip,
+        isspatrip,
+        istour
+
+    from {{ ref('int_triptypepriority') }}
+),
+
 trip_with_phases as (
     select
         t.tripid,
@@ -37,17 +49,26 @@ trip_with_phases_counted as (
         {% for type in var('tripphasetypes') %}
         sum(case when tripphasetype = '{{ type }}' then 1 else 0 end) as tripnum{{ type | lower }}phases,
         {% endfor %}
-        count(tripphasetype) tripnumphases,
+        count(tripphasetype) tripnumphases
+
+    from trip_with_phases
+    group by tripid
+),
+
+final as (
+    select
+        *,
 
         current_timestamp as dbt_loadtime,
         '{{ invocation_id }}'::text as dbt_runid
 
-    from trip_with_phases
-    group by tripid
+    from trip_with_phases_counted
+
+    inner join trip_type_info
+    using (tripid)
+
+    -- TODO add destination info
+    -- TODO create separate row for trip when own car is chosen?
 )
 
--- TODO add destination info
-
--- TODO create separate row for trip when own car is chosen
-
-select * from trip_with_phases_counted
+select * from final
