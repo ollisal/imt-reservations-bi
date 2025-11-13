@@ -3,5 +3,6 @@
         "*.sql": "jinja-sql",
         "*.yml": "jinja-yaml"
     },
-    "dbt.queryLimit": 100
+    "dbt.queryLimit": 100,
+    "dbt.enableNewLineagePanel": true
 }
