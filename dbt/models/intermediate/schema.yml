@@ -165,9 +165,12 @@ models:
         description: Number of flight phases in the trip
         data_tests:
         - not_null
+        - dbt_utils.not_constant
         - dbt_utils.expression_is_true:
+            name: tripnumphases_at_most_two
             arguments:
-              expression: '>= 0'
+              # The system doesn't support trips with more than 2 flight phases, if it did we would need to revise int_tripproductstep step index calculation too
+              expression: 'between 0 and 2'
       - name: tripnumbusphases
         description: Number of bus phases in the trip
         data_tests:

@@ -26,26 +26,44 @@ departures as (
     group by tripid
 ),
 
+flightsteps as (
+    select tripid,
+    tripphaseid,
+    tripphaseindex,
+    tripphasetype,
+    'flight' as productsteptype,
+    (tripphaseindex + 1) * 10 as _sortkey
+
+    from base
+
+    {# Both flight directions are chosen in one step, there is no additional step like there would be for return ship #}
+    where tripphasetype = 'Flight'
+    and not exists (
+        select 1 from base tp2
+        where tp2.tripid = base.tripid
+        and tp2.tripphaseindex > base.tripphaseindex
+        and tp2.tripphasetype = 'Flight'
+    )
+),
+
 mainsteps as (
     select tripid,
     tripphaseid,
     tripphaseindex,
     tripphasetype,
     case
-        when tripphasetype = 'Flight' then 'flight'
         when tripphasetype = 'Hotel' then 'hotel'
         else 'ship'
         end as productsteptype,
     (tripphaseindex + 1) * (
         case
-        when tripphasetype = 'Flight' then 10
         when tripphasetype = 'Hotel' then 1000
         else 1000000
     end) as _sortkey
 
     from base
 
-    where tripphasetype in ('Flight', 'Hotel', 'Ship')
+    where tripphasetype in ('Hotel', 'Ship')
 ),
 
 substeps as (
@@ -63,6 +81,8 @@ substeps as (
 
 allsteps as (
     select * from departures
+    union all
+    select * from flightsteps
     union all
     select * from mainsteps
     union all

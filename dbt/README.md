@@ -11,6 +11,7 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 ### 2025/11/14
 
 - Add reached_* shorthand properties to fct_reservation_funnel
+- Fix two Flight TripPhases being counted as generating two product selection steps; in reality outgoing and return flight are chosen together
 
 ### 2025/11/13
 
