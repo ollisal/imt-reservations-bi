@@ -8,6 +8,10 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2025/11/14
+
+- Add reached_* shorthand properties to fct_reservation_funnel
+
 ### 2025/11/13
 
 - Add int_triptypepriority, which normalizes trip type classification differences

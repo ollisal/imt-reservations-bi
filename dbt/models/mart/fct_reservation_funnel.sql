@@ -109,6 +109,12 @@ case
     else (abandonproductstepindex::float / totalproductsteps) * 0.4
 end as funnel_progress,
 
+funnel_progress >= 0.4 reached_passengerinfo,
+funnel_progress >= 0.7 reached_reserverinfo,
+funnel_progress >= 0.75 reached_additionalservices,
+funnel_progress >= 0.8 reached_confirmation,
+finalstage = 'Confirmed' is_confirmed,
+
 current_timestamp as dbt_loadtime,
 '{{ invocation_id }}'::text as dbt_runid
 
