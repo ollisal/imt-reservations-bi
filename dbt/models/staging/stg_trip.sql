@@ -20,4 +20,6 @@ select
     current_timestamp as dbt_loadtime,
     '{{ invocation_id }}'::text as dbt_runid
 
+    {# TODO import cancellationprotectiondisabled, we need it to correctly interpret new reservations Nov 2025 -> which may have protection step before PassengerInfo #}
+
 from source
