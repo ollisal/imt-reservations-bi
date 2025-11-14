@@ -103,6 +103,7 @@ case when finalstage = 'ProductSelection' then totalproductsteps end as totalpro
 case
     when finalstage = 'Confirmed' then 1.0
     when finalstage = 'Confirmation' then 0.8
+    {# FIXME: For very recent reservations (Oct 2025->?) AdditionalServices is actually before PassengerInfo. Not all trips have it available though #}
     when finalstage = 'AdditionalServices' then 0.75
     when finalstage = 'ReserverInfo' then 0.7
     when finalstage = 'PassengerInfo' then 0.4
