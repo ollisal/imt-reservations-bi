@@ -30,6 +30,9 @@ models:
       +materialized: table
 
 vars:
+  # Departure times etc are in Finnish time but the timezone information is lost in the data lake, some timestamps need to be reinterpreted based on this
+  home_tz: "Europe/Helsinki"
+
   travelsteptypes:
     - Hotel
     - DuringStayService
