@@ -8,6 +8,10 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2025/11/19
+
+- Add stg_person, with some anonymization
+
 ### 2025/11/14
 
 - Add reached_* shorthand properties to fct_reservation_funnel

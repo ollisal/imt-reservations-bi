@@ -27,7 +27,11 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   imt_reservations:
     staging:
+      # Avoids repeated queries to non-partitioned S3 tables (sources are via spectrum)
       +materialized: table
+      +pre-hook:
+        # Enables accessing mixedCase JSON attributes using case-sensitive identifiers
+        - "SET enable_case_sensitive_identifier = TRUE"
 
 vars:
   # Departure times etc are in Finnish time but the timezone information is lost in the data lake, some timestamps need to be reinterpreted based on this
