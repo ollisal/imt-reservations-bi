@@ -8,6 +8,10 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2025/11/21
+
+- Data tests for stg_reservation and stg_person
+
 ### 2025/11/19
 
 - Add stg_person, with some anonymization

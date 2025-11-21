@@ -45,5 +45,5 @@ select
 from source
 
 where
-    departuredate is not null  -- not completely "null"
+    departuredate is not null and tripid is not null  -- not completely "blank"
     and mainreservationid is null  -- disregard add-on reservations (mobile, reserve extra service after)

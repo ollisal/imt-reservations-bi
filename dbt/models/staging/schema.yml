@@ -93,3 +93,79 @@ models:
             combination_of_columns:
               - tripid
               - type
+
+  - name: stg_person
+    columns:
+      - name: personid
+        data_tests: *primary_key_tests
+      - name: createyearmonth
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+      - name: customeraccountcreateyearmonth
+        data_tests:
+          - dbt_utils.not_constant
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= createyearmonth"
+              where: "customeraccountcreateyearmonth is not null"
+      - name: gender
+        data_tests:
+          - dbt_utils.not_constant
+          - accepted_values:
+              arguments:
+                values: ['Male', 'Female']
+      - name: hascustomeraccount
+        data_tests: &varying_boolean_tests
+          - not_null
+          - dbt_utils.not_constant
+      - name: customeraccounthasbonus
+        data_tests: *varying_boolean_tests
+      - name: hasclubone
+        data_tests: *varying_boolean_tests
+
+  - name: stg_reservation
+    columns:
+      - name: reservationid
+        data_tests: *primary_key_tests
+      - name: tripid
+        data_tests: *trip_fk_tests
+      - name: fromwebshop
+        data_tests: *varying_boolean_tests
+      - name: departuredate
+        data_tests: &valid_date_time_tests
+          - not_null
+          - dbt_utils.not_constant
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">='2015-01-01'"
+      - name: customerpersonid
+        data_tests: &person_fk_tests
+          - dbt_utils.not_constant
+          - relationships:
+              arguments:
+                to: ref('stg_person')
+                field: personid
+      - name: createtime
+        data_tests: *valid_date_time_tests
+      - name: createdate
+        data_tests: *valid_date_time_tests
+      - name: firstundecidedreservationview
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          - accepted_values:
+                arguments:
+                values:
+                  - ProductSelection
+                  - PassengerInfo
+                  - ReserverInfo
+                  - AdditionalServices
+                  - Confirmation
+      - name: firstundecidedstepindex
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
