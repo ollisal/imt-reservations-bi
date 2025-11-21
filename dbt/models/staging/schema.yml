@@ -23,7 +23,7 @@ models:
   - name: stg_trip
     columns:
       - name: tripid
-        data_tests:
+        data_tests: &primary_key_tests
           - unique
           - not_null
       - name: primarydestinationid
@@ -36,9 +36,7 @@ models:
   - name: stg_travelstep
     columns:
       - name: travelstepid
-        data_tests:
-          - unique
-          - not_null
+        data_tests: *primary_key_tests
       - name: travelsteptype
         data_tests:
           - not_null
@@ -58,8 +56,9 @@ models:
   - name: stg_tripdestination
     columns:
       - name: tripid
-        data_tests:
+        data_tests: &trip_fk_tests
           - not_null
+          - dbt_utils.not_constant
           - relationships:
               arguments:
                 to: ref('stg_trip')
@@ -81,12 +80,7 @@ models:
   - name: stg_triptype
     columns:
       - name: tripid
-        data_tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('stg_trip')
-                field: tripid
+        data_tests: *trip_fk_tests
       - name: type
         data_tests:
           - not_null
