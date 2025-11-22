@@ -8,6 +8,10 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2025/11/22
+
+- Add stg_passenger, including data tests
+
 ### 2025/11/21
 
 - Data tests for stg_reservation and stg_person

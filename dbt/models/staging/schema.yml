@@ -64,8 +64,9 @@ models:
                 to: ref('stg_trip')
                 field: tripid
       - name: travelstepid
-        data_tests:
+        data_tests: &travelstep_fk_tests
           - not_null
+          - dbt_utils.not_constant
           - relationships:
               arguments:
                 to: ref('stg_travelstep')
@@ -141,6 +142,7 @@ models:
                 expression: ">='2015-01-01'"
       - name: customerpersonid
         data_tests: &person_fk_tests
+          - dbt_utils.at_least_one
           - dbt_utils.not_constant
           - relationships:
               arguments:
@@ -169,3 +171,41 @@ models:
           - dbt_utils.expression_is_true:
               arguments:
                 expression: ">= 0"
+
+  - name: stg_passenger
+    columns:
+      - name: passengerid
+        data_tests: *primary_key_tests
+      - name: personid
+        data_tests: *person_fk_tests
+      - name: reservationid
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          # No relationships test - apparently there is no FK constraint in source and there are orphaned Passengers for deleted? Reservations
+      - name: createyearmonth
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">='2015-01-01'"
+      - name: origincityid
+        data_tests: &travelstep_optional_fk_tests
+          - dbt_utils.not_constant
+          - relationships:
+              arguments:
+                to: ref('stg_travelstep')
+                field: travelstepid
+      - name: returncityid
+        data_tests: *travelstep_optional_fk_tests
+      - name: hasowncar
+        data_tests: *varying_boolean_tests
+      - name: childagemonths
+        data_tests:
+          - dbt_utils.not_constant
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+              config:
+                where: "childagemonths is not null"
