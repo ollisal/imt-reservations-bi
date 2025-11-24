@@ -13,7 +13,7 @@ with
         select *
         from {{ source('erp_raw', 'ebdb_public_reservation') }}
         {% if is_incremental() %}
-            where modifytime > coalesce((select max(modifytime) from {{ this }}), '1989-06-28'::timestamp)
+            where modifytime >= coalesce((select max(modifytime) from {{ this }}), '1989-06-28'::timestamp)
         {% endif %}
     )
 

@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
+        unique_key='passengerid',
+        incremental_strategy='merge',
+        on_schema_change='sync_all_columns',
         dist='reservationid',
         sort=['reservationid']
     )
 }}
 
-with source as (select * from {{ source('erp_raw', 'ebdb_public_passenger') }})
+with source as (
+    select * from {{ source('erp_raw', 'ebdb_public_passenger') }}
+
+    {% if is_incremental() %}
+        where coalesce(modifytime, createtime) >= coalesce((select max(modifytime) from {{ this }}), '1989-06-28'::timestamp)
+    {% endif %}
+)
 
 select
 
@@ -15,6 +24,7 @@ select
     personid,
 
     trunc(date_trunc('month', {{ datalake_hometime_to_timestamp('createtime') }})) as createyearmonth,
+    coalesce(modifytime, createtime) as modifytime,
 
     origincityid,
     returncityid,

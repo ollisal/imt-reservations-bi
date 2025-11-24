@@ -1,12 +1,21 @@
 {{
   config(
-    materialized = 'table',
+    materialized = 'incremental',
+    unique_key='personid',
+    incremental_strategy='merge',
+    on_schema_change='sync_all_columns',
     dist='personid',
     sort=['personid']
   )
 }}
 
-with source as (select * from {{ source('erp_raw', 'ebdb_public_person') }}),
+with source as (
+    select * from {{ source('erp_raw', 'ebdb_public_person') }}
+
+    {% if is_incremental() %}
+        where coalesce(modifytime, createtime) >= coalesce((select max(modifytime) from {{ this }}), '1989-06-28'::timestamp)
+    {% endif %}
+),
 
 person_with_super_extraprops as (
     select
@@ -18,6 +27,7 @@ person_with_super_extraprops as (
 minimized_person as (
     select
         id as personid,
+        coalesce(modifytime, createtime) as modifytime,
 
         {# Truncated for privacy reasons #}
         trunc(date_trunc('month', {{ datalake_hometime_to_timestamp('createtime') }})) as createyearmonth,
@@ -39,6 +49,7 @@ minimized_person as (
 select
 
     personid,
+    modifytime,
 
     createyearmonth,
     customeraccountcreateyearmonth,
