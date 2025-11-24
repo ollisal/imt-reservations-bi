@@ -151,40 +151,41 @@ models:
         description: Number of ship phases in the trip
         data_tests:
         - not_null
-        - dbt_utils.expression_is_true:
+        - dbt_utils.accepted_range:
             arguments:
-              expression: '>= 0'
+              min_value: 0
       - name: tripnumhotelphases
         description: Number of hotel phases in the trip
         data_tests:
         - not_null
-        - dbt_utils.expression_is_true:
+        - dbt_utils.accepted_range:
             arguments:
-              expression: '>= 0'
+              min_value: 0
       - name: tripnumflightphases
         description: Number of flight phases in the trip
         data_tests:
         - not_null
         - dbt_utils.not_constant
-        - dbt_utils.expression_is_true:
+        - dbt_utils.accepted_range:
             name: tripnumphases_at_most_two
             arguments:
               # The system doesn't support trips with more than 2 flight phases, if it did we would need to revise int_tripproductstep step index calculation too
-              expression: 'between 0 and 2'
+              min_value: 0
+              max_value: 2
       - name: tripnumbusphases
         description: Number of bus phases in the trip
         data_tests:
         - not_null
-        - dbt_utils.expression_is_true:
+        - dbt_utils.accepted_range:
             arguments:
-              expression: '>= 0'
+              min_value: 0
       - name: tripnumduringstayservicephases
         description: Number of during stay service phases in the trip
         data_tests:
         - not_null
-        - dbt_utils.expression_is_true:
+        - dbt_utils.accepted_range:
             arguments:
-              expression: '>= 0'
+              min_value: 0
     data_tests:
       - dbt_utils.equal_rowcount:
           arguments:
