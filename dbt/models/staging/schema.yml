@@ -201,11 +201,12 @@ models:
         data_tests: *travelstep_optional_fk_tests
       - name: hasowncar
         data_tests: *varying_boolean_tests
-      - name: childagemonths
+      - name: childageyears
         data_tests:
           - dbt_utils.not_constant
-          - dbt_utils.expression_is_true:
+          - dbt_utils.accepted_range:
               arguments:
-                expression: ">= 0"
+                min_value: 0
+                max_value: 17
               config:
-                where: "childagemonths is not null"
+                where: "childageyears is not null"

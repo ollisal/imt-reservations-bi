@@ -19,7 +19,7 @@ select
     origincityid,
     returncityid,
     owncar as hasowncar,
-    agemonths as childagemonths,
+    floor(agemonths / 12)::integer as childageyears,
 
     current_timestamp as dbt_loadtime,
     '{{ invocation_id }}'::text as dbt_runid
