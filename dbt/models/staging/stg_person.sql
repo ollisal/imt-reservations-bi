@@ -9,6 +9,9 @@
   )
 }}
 
+{# IMT has anonymized some customers by setting their DoB to e.g. 1900/01/01, ignore these #}
+{% set OLDEST_VALID_DOB = '1920-01-01' %}
+
 with source as (
     select * from {{ source('erp_raw', 'ebdb_public_person') }}
 
@@ -33,7 +36,10 @@ minimized_person as (
         trunc(date_trunc('month', {{ datalake_hometime_to_timestamp('createtime') }})) as createyearmonth,
         trunc(date_trunc('month', {{ datalake_hometime_to_timestamp('customeraccountcreated') }})) as customeraccountcreateyearmonth,
         {# This one is a bit special, as the dates of birth happen to be stored with a time component, set to midnight - in DB time zone (timestamp) #}
-        trunc(date_trunc('month', dateofbirth)) as birthyearmonth,
+        case
+            when dateofbirth >= '{{ OLDEST_VALID_DOB }}'::date
+            then trunc(date_trunc('month', dateofbirth))
+        end as birthyearmonth,
 
         customeraccountcreateyearmonth is not null as hascustomeraccount,
         bonus > 0 as customeraccounthasbonus,

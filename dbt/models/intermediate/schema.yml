@@ -195,6 +195,74 @@ models:
           arguments:
             expression: 'tripnumshipphases + tripnumhotelphases + tripnumflightphases + tripnumbusphases + tripnumduringstayservicephases = tripnumphases'
 
+  - name: int_reservationpassengerbio
+    description: Combines reservation, passenger, and person data to determine passenger gender and age information
+    columns:
+      - name: passengerid
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                field: passengerid
+                to: ref('stg_passenger')
+      - name: reservationid
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                field: reservationid
+                to: ref('stg_reservation')
+      - name: personid
+        data_tests:
+          - relationships:
+              arguments:
+                field: personid
+                to: ref('stg_person')
+      - name: departureyearmonth
+        data_tests:
+          - not_null
+      - name: gender
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Male', 'Female']
+      - name: ageyears
+        data_tests:
+          - dbt_utils.at_least_one
+          - dbt_utils.not_constant
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 110
+      - name: agesource
+        data_tests:
+          - dbt_utils.not_constant
+          - accepted_values:
+              arguments:
+                values: ['persondetails', 'childpassenger']
+      - name: exactageknown
+        data_tests: &varying_boolean_tests
+          - not_null
+          - dbt_utils.not_constant
+      - name: isdefiniteadult
+        data_tests: *varying_boolean_tests
+      - name: isdefinitechild
+        data_tests: *varying_boolean_tests
+    data_tests:
+      - dbt_utils.expression_is_true:
+          name: age_and_agesource_consistency
+          arguments:
+            expression: "(ageyears is null and agesource is null) or (ageyears is not null and agesource is not null)"
+      - dbt_utils.expression_is_true:
+          name: exactageknown_consistency
+          arguments:
+            expression: "(exactageknown = true and ageyears is not null) or (exactageknown = false and ageyears is null)"
+      - dbt_utils.expression_is_true:
+          name: adult_child_mutually_exclusive
+          arguments:
+            expression: "not (isdefiniteadult = true and isdefinitechild = true)"
+
 unit_tests:
   # For int_travelstephierarchy
   - name: travelstephierarchy_test_hoteldss_citybus_country

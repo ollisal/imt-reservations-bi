@@ -11,6 +11,8 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 ### 2025/11/24
 
 - Incremental refresh for stg_passenger, stg_person
+- Create int_reservationpassengerbio, which infers passenger ages in multiple ways
+- Ignore mega-ancient Person date-of-births, which are really anonymization sentinel values
 
 ### 2025/11/22
 
