@@ -58,5 +58,11 @@ vars:
     - Flight
     - DuringStayService
 
+  agecutoffs:
+    smallvsschooldchild: 7
+    childvsadult: 18
+    youngvsmiddleagedadult: 45
+    middleagedvspensioners: 65
+
 flags:
   require_generic_test_arguments_property: true

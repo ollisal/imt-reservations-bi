@@ -12,6 +12,7 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 - Add departureyear to int_reservationpassengerbio
 - No longer try to distinguish "definite" adults/children, we can filter by having exact ages and/or reservation abandon stage elsewhere anyway
+- Create dim_passengergroup
 
 ### 2025/11/24
 
