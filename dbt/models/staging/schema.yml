@@ -159,12 +159,12 @@ models:
           - dbt_utils.not_constant
           - accepted_values:
                 arguments:
-                values:
-                  - ProductSelection
-                  - PassengerInfo
-                  - ReserverInfo
-                  - AdditionalServices
-                  - Confirmation
+                  values:
+                    - ProductSelection
+                    - PassengerInfo
+                    - ReserverInfo
+                    - AdditionalServices
+                    - Confirmation
       - name: firstundecidedstepindex
         data_tests:
           - not_null
