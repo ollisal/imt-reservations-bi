@@ -8,6 +8,10 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2025/11/27
+
+- Add departureyear to int_reservationpassengerbio
+
 ### 2025/11/24
 
 - Incremental refresh for stg_passenger, stg_person

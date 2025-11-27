@@ -60,6 +60,7 @@ final as (
         p.reservationid,
         p.personid,
 
+        extract(year from departureyearmonth) as departureyear,
         departureyearmonth,
         pe.birthyearmonth,
 

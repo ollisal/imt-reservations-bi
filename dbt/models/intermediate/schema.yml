@@ -219,9 +219,18 @@ models:
               arguments:
                 field: personid
                 to: ref('stg_person')
+      - name: departureyear
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 2015
       - name: departureyearmonth
         data_tests:
           - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: '2015-01-01'
       - name: gender
         data_tests:
           - accepted_values:
