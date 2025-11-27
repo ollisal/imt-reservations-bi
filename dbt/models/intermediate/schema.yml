@@ -254,9 +254,9 @@ models:
         data_tests: &varying_boolean_tests
           - not_null
           - dbt_utils.not_constant
-      - name: isdefiniteadult
+      - name: isadult
         data_tests: *varying_boolean_tests
-      - name: isdefinitechild
+      - name: ischild
         data_tests: *varying_boolean_tests
     data_tests:
       - dbt_utils.expression_is_true:
@@ -270,7 +270,7 @@ models:
       - dbt_utils.expression_is_true:
           name: adult_child_mutually_exclusive
           arguments:
-            expression: "not (isdefiniteadult = true and isdefinitechild = true)"
+            expression: "not (isadult = true and ischild = true)"
 
 unit_tests:
   # For int_travelstephierarchy

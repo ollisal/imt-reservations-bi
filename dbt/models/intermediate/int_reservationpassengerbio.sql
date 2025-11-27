@@ -7,10 +7,7 @@ with reservation as (
     select
         reservationid,
 
-        departuredate,
-
-        firstundecidedreservationview,
-        firstundecidedstepindex
+        departuredate
 
     from {{ ref('stg_reservation') }}
 
@@ -44,8 +41,7 @@ passenger_with_res_info as (
         p.personid,
         childageyears,
 
-        trunc(date_trunc('month', r.departuredate)) as departureyearmonth,
-        firstundecidedreservationview != 'ProductSelection' or firstundecidedstepindex > 0 as respastdeparturestep
+        trunc(date_trunc('month', r.departuredate)) as departureyearmonth
 
     from passenger p
     inner join reservation r using (reservationid)
@@ -77,12 +73,8 @@ final as (
         end as agesource,
 
         ageyears is not null as exactageknown,
-        case
-            when ageyears >= 18 then true
-            when ageyears is null and respastdeparturestep then true
-            else false
-        end as isdefiniteadult,
-        coalesce(ageyears < 18, false) as isdefinitechild,
+        coalesce(ageyears >= 18, true) as isadult,
+        coalesce(ageyears < 18, false) as ischild,
 
         current_timestamp as dbt_loadtime,
         '{{ invocation_id }}'::text as dbt_runid
