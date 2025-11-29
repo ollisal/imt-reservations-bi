@@ -75,7 +75,7 @@ models:
     columns:
       - name: reservationid
         description: Unique identifier for the reservation
-        data_tests:
+        data_tests: &reservation_fk_tests
         - not_null
         - unique
         - relationships:
@@ -100,3 +100,124 @@ models:
           name: productselection_completed_must_not_have_abandonstep
           arguments:
             expression: finalstage = 'ProductSelection' or abandonproductsteptype is null
+
+  - name: dim_passengergroup
+    description: Dimension table for passenger groups of each reservation
+    columns:
+      - name: reservationid
+        data_tests: *reservation_fk_tests
+      - name: departureyear
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+      - name: departureyearmonth
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+      - name: numpassengers
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+      - name: numadults
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: "numpassengers"
+      - name: numchildren
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: "numpassengers"
+      - name: numexactagepassengers
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: "numpassengers"
+      - name: allagesknown
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          - accepted_values:
+              arguments:
+                values: [true, false]
+      - name: groupcategory
+        data_tests:
+          - not_null
+          - dbt_utils.not_constant
+          - accepted_values:
+              arguments:
+                values:
+                  - AdultSolo
+                  - AdultCouple
+                  - AdultGroup
+                  - FamilyWithSmallChildren
+                  - FamilyWithSchoolChildren
+                  - Other
+      - name: adultagecategory
+        data_tests:
+          - dbt_utils.not_constant
+          - accepted_values:
+              arguments:
+                values: [Young, MiddleAged, Pensioner]
+          - not_null:
+              config:
+                where: "allagesknown = true and numadults > 0"
+      - name: minadultage
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: "avgadultage"
+              config:
+                where: "minadultage is not null"
+      - name: maxadultage
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: "avgadultage"
+                max_value: 120
+              config:
+                where: "maxadultage is not null"
+      - name: minchildage
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: "avgchildage"
+              config:
+                where: "minchildage is not null"
+      - name: maxchildage
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: "avgchildage"
+                max_value: 17
+              config:
+                where: "maxchildage is not null"
+    data_tests:
+      - dbt_utils.expression_is_true:
+          name: passenger_count_consistency
+          arguments:
+            expression: "numadults + numchildren = numpassengers"
+      - dbt_utils.expression_is_true:
+          name: childage_breakdown_consistency
+          arguments:
+            expression: "numsmallchildren + numschoolchildren = numchildren"
+      - dbt_utils.expression_is_true:
+          name: adultage_breakdown_consistency
+          arguments:
+            expression: "numyoungadults + nummiddleagedadults + numpensioners = numadults"
+          config:
+            where: "allagesknown = true"

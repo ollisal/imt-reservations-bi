@@ -34,21 +34,20 @@ passengeragegroup as (
         {% endfor %}
 
         case
-            when numpassengers = 1 and numadults = 1 then 'SoloAdult'
+            when numpassengers = 1 and numadults = 1 then 'AdultSolo'
             when numpassengers = 2 and numadults = 2 then 'AdultCouple'
             when numadults > 2 and numchildren = 0 then 'AdultGroup'
-            when numadults >=1 and numchildren >=1 then 'Family'
+            when numadults >=1 and numsmallchildren >=1 then 'FamilyWithSmallChildren'
+            when numadults >=1 and numschoolchildren >=1 then 'FamilyWithSchoolChildren'
             else 'Other'
         end as groupcategory,
 
         case
-            when groupcategory like '%Adult%' and avgadultage < {{ var('agecutoffs')['youngvsmiddleagedadult'] }} then 'Young'
-            when groupcategory like '%Adult%' and avgadultage >= {{ var('agecutoffs')['youngvsmiddleagedadult'] }} then 'MiddleAged'
-            when groupcategory like '%Adult%' and avgadultage >= {{ var('agecutoffs')['middleagedvspensioners'] }} then 'Pensioner'
-            when groupcategory = 'Family' and numsmallchildren >= 1 then 'WithSmallChildren' -- takes precedence
-            when groupcategory = 'Family' and numschoolchildren >= 1 then 'WithSchoolChildren'
+            when avgadultage < {{ var('agecutoffs')['youngvsmiddleagedadult'] }} then 'Young'
+            when avgadultage >= {{ var('agecutoffs')['middleagedvspensioners'] }} then 'Pensioner'
+            when avgadultage >= {{ var('agecutoffs')['youngvsmiddleagedadult'] }} then 'MiddleAged'
             else null
-        end as groupsubcategory
+        end as adultagecategory
 
     from passengerbio
     group by reservationid

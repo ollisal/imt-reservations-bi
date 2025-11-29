@@ -8,6 +8,14 @@ Olli Salli <https://www.linkedin.com/in/ollisal/>
 
 ## History
 
+### 2025/11/28
+
+- Adjust dim_passengergroup:
+  - early-stage reservations now all have groupcategory populated
+  - groupsubcategory changes to adultagecategory, which is set only for well-progressed reservations
+  - fix pensioners being counted as middle-aged
+  - Add tests
+
 ### 2025/11/27
 
 - Add departureyear to int_reservationpassengerbio
