@@ -6,6 +6,8 @@ Tables for IMT.fi reservation history analysis, built using dbt (could also be u
 
 Olli Salli <https://www.linkedin.com/in/ollisal/>
 
+All rights reserved.
+
 ## History
 
 ### 2025/11/28
